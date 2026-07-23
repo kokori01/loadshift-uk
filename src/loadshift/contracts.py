@@ -36,9 +36,7 @@ class CarbonIntensityRecord(HalfHourlyRecord):
 
     forecast_gco2_per_kwh: float = Field(ge=0)
     actual_gco2_per_kwh: float | None = Field(default=None, ge=0)
-    index: Literal["very low", "low", "moderate", "high", "very high"] | None = (
-        None
-    )
+    index: Literal["very low", "low", "moderate", "high", "very high"] | None = None
 
 
 class TariffPriceRecord(HalfHourlyRecord):
@@ -47,3 +45,11 @@ class TariffPriceRecord(HalfHourlyRecord):
     price_pence_per_kwh_inc_vat: float
     price_pence_per_kwh_exc_vat: float | None = None
     payment_method: str | None = None
+
+
+class SmartMeterReading(HalfHourlyRecord):
+    """Canonical Low Carbon London household-consumption observation."""
+
+    household_id: str = Field(min_length=1)
+    tariff_group: Literal["standard", "dynamic_tou"]
+    consumption_kwh: float | None = Field(default=None, ge=0)
