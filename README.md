@@ -10,13 +10,26 @@ deployment, and communication as first-class requirements.
 
 ## Current status
 
-Sprint 1 establishes:
+Sprint 1 established:
 
 1. Typed contracts for half-hourly price and carbon-intensity observations.
 2. Clients and parsers for the NESO Carbon Intensity and Octopus Energy APIs.
 3. A leakage-safe seasonal-naive forecasting baseline.
 4. Initial evaluation metrics and automated tests.
 5. A documented experiment plan for the Low Carbon London trial.
+
+Sprint 2 adds:
+
+1. Discovery of the current official Low Carbon London archive through the
+   London Datastore metadata API.
+2. Byte-range extraction of a reproducible sample from the remote ZIP without
+   downloading the complete archive.
+3. DuckDB validation and conversion from raw CSV to Zstandard-compressed
+   Parquet.
+4. Provenance metadata, SHA-256 checksums, interval coverage, missingness,
+   duplicate, and schema checks.
+5. Safe removal of exact duplicate records while conflicting measurements
+   fail the pipeline.
 
 No performance or savings claim is made until the historical evaluation has
 been completed.
@@ -39,9 +52,10 @@ The intended system has four layers:
 ## Data sources
 
 1. [Low Carbon London smart-meter data](https://data.london.gov.uk/dataset/smartmeter-energy-consumption-data-in-london-households-vqm0d)
-2. [NESO Carbon Intensity API](https://carbonintensity.org.uk/)
-3. [Elexon Insights API](https://bmrs.elexon.co.uk/api-documentation)
-4. [Octopus Energy API](https://docs.octopus.energy/rest/guides/endpoints/)
+2. [Low Carbon London trial data guide](https://doc.ukdataservice.ac.uk/doc/7857/mrdoc/pdf/7857_userguide.pdf)
+3. [NESO Carbon Intensity API](https://carbonintensity.org.uk/)
+4. [Elexon Insights API](https://bmrs.elexon.co.uk/api-documentation)
+5. [Octopus Energy API](https://docs.octopus.energy/rest/guides/endpoints/)
 
 The historical London dataset contains roughly 167 million half-hourly rows
 from 5,567 households. Around 1,100 households received dynamic time-of-use
@@ -54,8 +68,26 @@ must be verified before interpreting an estimate as causal.
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e .
+python -m pip install -e ".[data,dev]"
 python -m unittest discover -s tests -v
+```
+
+Fetch 50,000 real observations while transferring only the required byte
+ranges from the official archive:
+
+```bash
+loadshift lcl-sample \
+  --rows 50000 \
+  --output data/raw/lcl/lcl_50k.csv
+```
+
+Validate the sample, produce canonical Parquet, and write a quality report:
+
+```bash
+loadshift lcl-ingest \
+  --input data/raw/lcl/lcl_50k.csv \
+  --output data/interim/lcl/lcl_50k.parquet \
+  --report artifacts/lcl_50k_profile.json
 ```
 
 Fetch a carbon-intensity interval:
@@ -100,8 +132,10 @@ artifacts/           Generated model and evaluation outputs
 
 ## Planned stack
 
-The initial package deliberately stays small. Later sprints add DuckDB,
-partitioned Parquet, Polars or PySpark, MLflow, FastAPI, Docker, and a deployed
-decision dashboard only when each component has a measured purpose.
+The package deliberately stays small. DuckDB and Parquet now serve the
+historical data layer. Later sprints add modelling and serving tools such as
+MLflow, FastAPI, Docker, and a deployed decision dashboard only when each
+component has a measured purpose.
 
-See [the roadmap](docs/ROADMAP.md) for the planned sequence.
+See [the ingestion design](docs/LCL_INGESTION.md), [sample validation
+evidence](docs/LCL_SAMPLE_VALIDATION.md), and [roadmap](docs/ROADMAP.md).

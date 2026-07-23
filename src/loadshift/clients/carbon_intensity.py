@@ -4,11 +4,19 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal, cast
 
 from loadshift.clients.http import JsonHttpClient
 from loadshift.contracts import CarbonIntensityRecord
 from loadshift.time_utils import format_api_datetime, parse_api_datetime
+
+CarbonIndex = Literal[
+    "very low",
+    "low",
+    "moderate",
+    "high",
+    "very high",
+]
 
 
 def parse_carbon_intensity(
@@ -26,6 +34,20 @@ def parse_carbon_intensity(
         if not isinstance(intensity, Mapping):
             raise ValueError("carbon row is missing intensity values")
 
+        raw_index = intensity.get("index")
+        index: CarbonIndex | None = None
+        if raw_index is not None:
+            normalised_index = str(raw_index).lower()
+            if normalised_index not in {
+                "very low",
+                "low",
+                "moderate",
+                "high",
+                "very high",
+            }:
+                raise ValueError(f"unexpected carbon-intensity index: {raw_index!r}")
+            index = cast(CarbonIndex, normalised_index)
+
         records.append(
             CarbonIntensityRecord(
                 interval_start=parse_api_datetime(str(row["from"])),
@@ -36,11 +58,7 @@ def parse_carbon_intensity(
                     if intensity.get("actual") is None
                     else float(intensity["actual"])
                 ),
-                index=(
-                    None
-                    if intensity.get("index") is None
-                    else str(intensity["index"]).lower()
-                ),
+                index=index,
             )
         )
     return records

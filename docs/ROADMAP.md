@@ -2,6 +2,8 @@
 
 ## Sprint 1: reliable foundation
 
+Status: complete.
+
 1. Establish contracts and public API parsers.
 2. Add a seasonal-naive forecast and metrics.
 3. Document assumptions, units, and evaluation rules.
@@ -9,10 +11,13 @@
 
 ## Sprint 2: historical data pipeline
 
-1. Download one official one-million-row split.
-2. Profile schema, missingness, duplicates, and daylight saving behaviour.
-3. Convert raw CSV to partitioned Parquet with DuckDB or Polars.
-4. Add data-quality checks and a reproducible sample.
+Status: complete.
+
+1. Resolve the official partitioned archive and its CC BY 4.0 metadata.
+2. Stream reproducible samples through HTTP byte-range reads.
+3. Profile schema, missingness, duplicates, cadence, and interval coverage.
+4. Convert raw CSV to canonical Zstandard-compressed Parquet with DuckDB.
+5. Record provenance, checksums, assumptions, and quality outcomes.
 
 ## Sprint 3: forecasting benchmark
 
