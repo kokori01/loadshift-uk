@@ -1,5 +1,9 @@
 # LoadShift UK
 
+[![CI](https://github.com/kokori01/loadshift-uk/actions/workflows/ci.yml/badge.svg)](https://github.com/kokori01/loadshift-uk/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 LoadShift UK is a production-minded data science project for forecasting
 half-hourly electricity demand, estimating response to dynamic tariffs, and
 scheduling flexible electricity use to reduce cost and carbon intensity.
@@ -33,6 +37,18 @@ Sprint 2 adds:
 
 No performance or savings claim is made until the historical evaluation has
 been completed.
+
+## Verified engineering baseline
+
+- **21 offline tests** cover data contracts, API parsing, seasonal-naive
+  forecasting, archive discovery, byte-range reads, deduplication and the
+  DuckDB/Parquet pipeline.
+- CI runs the suite across Python 3.11, 3.12 and 3.13, plus Ruff lint/format
+  checks and strict mypy type checking.
+- The same test, lint, format and type-check gates pass locally on the current
+  `main` branch.
+- Raw smart-meter data and generated artifacts are excluded from Git; the
+  repository keeps provenance, checksums and validation evidence instead.
 
 ## Product question
 

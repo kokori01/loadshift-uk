@@ -8,6 +8,8 @@ version = "0.2.0"
 description = "Forecasting and decision intelligence for flexible UK electricity demand"
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "kokori01" }]
 dependencies = [
   "numpy>=1.26,<2.4",
   "pandas>=2.2,<3",
@@ -32,6 +34,10 @@ dev = [
 
 [project.scripts]
 loadshift = "loadshift.cli:main"
+
+[project.urls]
+Repository = "https://github.com/kokori01/loadshift-uk"
+Issues = "https://github.com/kokori01/loadshift-uk/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
